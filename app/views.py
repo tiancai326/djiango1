@@ -2,10 +2,12 @@ from functools import wraps
 
 from django.contrib.auth.hashers import check_password, make_password
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .model_forms import LoginForm, SignonForm
-from .models import Member, News
+from .face_detect import detect_faces, draw_faces, encode_image, read_image
+from .model_forms import LoginForm, ResumeForm, SignonForm
+from .models import Ad, Member, News
 
 
 def member_login_required(view_func):
@@ -135,3 +137,87 @@ def signon(request):
         form = SignonForm()
 
     return render(request, "signon.html", {"form": form})
+
+
+def contact(request):
+    return render(
+        request,
+        "contact.html",
+        {
+            "active_menu": "contactus",
+            "sub_menu": "contact",
+        },
+    )
+
+
+def recruit(request):
+    ad_list = Ad.objects.all().order_by("-publishDate")
+    if request.method == "POST":
+        resume_form = ResumeForm(data=request.POST, files=request.FILES)
+        if resume_form.is_valid():
+            resume_form.save()
+            msg = "<br><br>成功新增个人简历..."
+            return render(
+                request,
+                "OK.html",
+                {
+                    "active_menu": "contactus",
+                    "sub_menu": "recruit",
+                    "msg": msg,
+                },
+            )
+    else:
+        resume_form = ResumeForm()
+
+    return render(
+        request,
+        "recruit.html",
+        {
+            "active_menu": "contactus",
+            "sub_menu": "recruit",
+            "AdList": ad_list,
+            "form": resume_form,
+        },
+    )
+
+
+def platform(request):
+    return render(
+        request,
+        "platform.html",
+        {
+            "active_menu": "service",
+            "sub_menu": "platform",
+        },
+    )
+
+
+def facedetect(request):
+    if request.method != "POST":
+        return JsonResponse({"faceNum": 0, "faces": []})
+
+    image = read_image(request.FILES.get("image"))
+    if image is None:
+        return JsonResponse({"faceNum": -1, "faces": []})
+
+    faces = detect_faces(image)
+    return JsonResponse({"faceNum": len(faces), "faces": faces})
+
+
+def facedetect_demo(request):
+    if request.method != "POST":
+        return JsonResponse({"faceNum": 0, "faces": [], "image": ""})
+
+    image = read_image(request.FILES.get("image"))
+    if image is None:
+        return JsonResponse({"faceNum": -1, "faces": [], "image": ""})
+
+    faces = detect_faces(image)
+    output = draw_faces(image, faces)
+    return JsonResponse(
+        {
+            "faceNum": len(faces),
+            "faces": faces,
+            "image": encode_image(output),
+        }
+    )

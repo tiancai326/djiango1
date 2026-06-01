@@ -13,6 +13,8 @@
         <div class="nav-links">
             <a class="{% if active_menu == 'home' %}active{% endif %}" href="{% url 'app:home' %}">首页</a>
             <a class="{% if active_menu == 'news' %}active{% endif %}" href="{% url 'app:newsList' 'company' %}">新闻中心</a>
+            <a class="{% if active_menu == 'contactus' %}active{% endif %}" href="{% url 'app:contact' %}">地图</a>
+            <a class="{% if active_menu == 'service' %}active{% endif %}" href="{% url 'app:platform' %}">人脸检测</a>
             {% if request.session.member_id %}
                 <form method="post" action="{% url 'app:logout' %}">
                     {% csrf_token %}
@@ -26,5 +28,7 @@
 <main class="container">
     {% block content %}{% endblock %}
 </main>
+
+{% block script_end %}{% endblock %}
 </body>
 </html>

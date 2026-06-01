@@ -1,7 +1,7 @@
 from captcha.fields import CaptchaField
 from django import forms
 
-from .models import Member
+from .models import Member, Resume
 
 
 class LoginForm(forms.Form):
@@ -92,3 +92,41 @@ class SignonForm(forms.ModelForm):
         if password1 and password2 and password1 != password2:
             self.add_error("password2", "两次输入的密码不一致。")
         return cleaned_data
+
+
+SEX_LIST = (
+    ("男", "男"),
+    ("女", "女"),
+)
+
+EDU_LIST = (
+    ("大专", "大专"),
+    ("本科", "本科"),
+    ("硕士", "硕士"),
+    ("博士", "博士"),
+    ("其它", "其它"),
+)
+
+
+class ResumeForm(forms.ModelForm):
+
+    class Meta:
+        model = Resume
+        fields = (
+            "name",
+            "sex",
+            "personID",
+            "email",
+            "birth",
+            "edu",
+            "school",
+            "major",
+            "experience",
+            "position",
+            "photo",
+        )
+        widgets = {
+            "sex": forms.Select(choices=SEX_LIST),
+            "edu": forms.Select(choices=EDU_LIST),
+            "photo": forms.FileInput(),
+        }

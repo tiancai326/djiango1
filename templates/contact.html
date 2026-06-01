@@ -1,0 +1,86 @@
+{% extends 'based.html' %}
+{% load static %}
+
+{% block title %}人才招聘{% endblock %}
+
+{% block content %}
+<link href="{% static 'css/contact.css' %}" rel="stylesheet">
+
+<div class="contact-hero">
+    <h1>人才招聘</h1>
+</div>
+
+<div class="contact-layout">
+    <aside class="contact-aside">
+        <h2>人才招聘</h2>
+        <ul>
+            <li class="{% if sub_menu == 'contact' %}active{% endif %}">
+                <a href="{% url 'app:contact' %}">欢迎咨询</a>
+            </li>
+            <li class="{% if sub_menu == 'recruit' %}active{% endif %}">
+                <a href="{% url 'app:recruit' %}">加入恒达</a>
+            </li>
+        </ul>
+    </aside>
+
+    <section class="contact-content">
+        <h2>欢迎咨询</h2>
+        <div class="contact-info">
+            <div class="contact-card">
+                <h3>恒达科技有限公司</h3>
+                <ul>
+                    <li><span>业务质询：</span>111-111111</li>
+                    <li><span>业务质询：</span>222-222222</li>
+                    <li><span>咨询电话：</span>0111-1111111</li>
+                    <li><span>公司传真：</span>0222-2222222</li>
+                    <li><span>地址：</span>某某路某某大道某某号</li>
+                    <li><span>邮编：</span>2222-222222</li>
+                    <li><span>网址：</span><a href="http://python3web.com">http://python3web.com</a></li>
+                </ul>
+            </div>
+            <div class="contact-map">
+                <div id="container"></div>
+                <div id="result" style="display:none; margin-top:10px;"></div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block script_end %}
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=1.0&&type=webgl&ak=POLKrhB2l8PKlNNnGDStwNplwXzi48jW"></script>
+<script type="text/javascript">
+    function createMap() {
+        var map = new BMapGL.Map('container');
+        map.centerAndZoom(new BMapGL.Point(116.404, 39.915), 12);
+        map.enableScrollWheelZoom(true);
+        map.setHeading(64.5);
+        map.setTilt(73);
+
+        var output = '从上地到西单坐公交需要：';
+        var transit = new BMapGL.TransitRoute(map, {
+            renderOptions: { map: map },
+            onSearchComplete: function (results) {
+                if (transit.getStatus() != BMAP_STATUS_SUCCESS) {
+                    return;
+                }
+                var plan = results.getPlan(0);
+                output += '总时长：' + plan.getDuration(true);
+                output += '总路程：' + plan.getDistance(true);
+                var resultBox = document.getElementById('result');
+                resultBox.style.display = 'block';
+                if (typeof plan.getDescription === 'function') {
+                    resultBox.innerHTML = output + '<br>' + plan.getDescription(true);
+                } else {
+                    resultBox.textContent = output;
+                }
+            },
+        });
+        var start = new BMapGL.Point(116.404844, 39.911836);
+        var end = new BMapGL.Point(116.308102, 40.056057);
+        transit.search(start, end);
+    }
+
+    createMap();
+</script>
+{% endblock %}

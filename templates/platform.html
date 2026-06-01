@@ -1,0 +1,127 @@
+{% extends 'based.html' %}
+{% load static %}
+
+{% block title %}人脸识别平台{% endblock %}
+
+{% block content %}
+<link href="{% static 'css/contact.css' %}" rel="stylesheet">
+
+<div class="contact-hero">
+    <h1>人脸识别平台</h1>
+</div>
+
+<div class="contact-layout">
+    <aside class="contact-aside">
+        <h2>服务平台</h2>
+        <ul>
+            <li class="{% if sub_menu == 'platform' %}active{% endif %}">
+                <a href="{% url 'app:platform' %}">人脸识别平台</a>
+            </li>
+        </ul>
+    </aside>
+
+    <section class="contact-content">
+        <h2>人脸识别接口</h2>
+        <div class="recruit-layout">
+            <div class="recruit-form">
+                <h3>上传图片</h3>
+                <form id="faceForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <label for="faceImage">选择图片</label>
+                        <input id="faceImage" type="file" name="image" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="detectBtn">检测人脸</button>
+                        <button type="button" id="detectDemoBtn">检测并绘制</button>
+                    </div>
+                </form>
+                <div id="faceResult" class="ok-body"></div>
+            </div>
+            <div class="recruit-ads">
+                <h3>检测结果图</h3>
+                <img id="facePreview" style="max-width:100%;" alt="face preview">
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block script_end %}
+<script>
+    const faceImage = document.getElementById('faceImage');
+    const detectBtn = document.getElementById('detectBtn');
+    const detectDemoBtn = document.getElementById('detectDemoBtn');
+    const faceResult = document.getElementById('faceResult');
+    const facePreview = document.getElementById('facePreview');
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            return parts.pop().split(';').shift();
+        }
+        return '';
+    }
+
+    function buildFormData() {
+        const file = faceImage.files[0];
+        if (!file) {
+            return null;
+        }
+        const formData = new FormData();
+        formData.append('image', file);
+        return formData;
+    }
+
+    function renderResult(data) {
+        if (data.faceNum < 0) {
+            faceResult.textContent = '读取图片失败。';
+            return;
+        }
+        faceResult.textContent = '检测到人脸数量：' + data.faceNum;
+    }
+
+    detectBtn.addEventListener('click', () => {
+        const formData = buildFormData();
+        if (!formData) {
+            faceResult.textContent = '请先选择图片。';
+            return;
+        }
+        fetch('{% url "app:facedetect" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                renderResult(data);
+                facePreview.removeAttribute('src');
+            });
+    });
+
+    detectDemoBtn.addEventListener('click', () => {
+        const formData = buildFormData();
+        if (!formData) {
+            faceResult.textContent = '请先选择图片。';
+            return;
+        }
+        fetch('{% url "app:facedetectDemo" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                renderResult(data);
+                if (data.image) {
+                    facePreview.src = 'data:image/jpeg;base64,' + data.image;
+                }
+            });
+    });
+</script>
+{% endblock %}
