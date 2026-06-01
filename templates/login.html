@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background: #eef3f8;
+            color: #172033;
+        }
+
+        .login-form {
+            width: min(92vw, 420px);
+            padding: 32px;
+            border: 1px solid #d8e1ec;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        h3 {
+            margin: 0 0 24px;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #bfccd9;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .captcha {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .alert-warning {
+            margin: 0 0 16px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            background: #fff1f0;
+            color: #b42318;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: 0;
+            border-radius: 6px;
+            background: #1f6feb;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .secondary {
+            background: #5f6f84;
+        }
+    </style>
+</head>
+<body>
+<form action="{% url 'app:login' %}" class="login-form" method="post" autocomplete="off">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+    <h3>XX 企业系统</h3>
+
+    {% if form.non_field_errors %}
+        <div class="alert-warning">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <div class="form-group">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {% if form.username.errors %}
+            <div class="alert-warning">{{ form.username.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        {% if form.password.errors %}
+            <div class="alert-warning">{{ form.password.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {% if form.captcha.errors %}
+            <div class="alert-warning">验证码错误</div>
+        {% endif %}
+        {{ form.captcha.label_tag }}
+        {{ form.captcha }}
+    </div>
+
+    <div class="actions">
+        <button type="submit">登录</button>
+        <button type="button" class="secondary" onclick="location.href='{% url 'app:signon' %}'">注册</button>
+    </div>
+</form>
+</body>
+</html>

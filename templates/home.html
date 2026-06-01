@@ -1,0 +1,39 @@
+{% extends 'based.html' %}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+<section class="page-title">
+    <p>当前用户：{{ member.username }}</p>
+    <h1>新闻中心</h1>
+    <form class="search-form" method="get" action="{% url 'app:search' %}">
+        <input type="text" name="keyword" placeholder="请输入关键词" required>
+        <button type="submit">查询</button>
+    </form>
+</section>
+
+<section class="type-grid">
+    {% for item in news_types %}
+        <a class="type-card" href="{% url 'app:newsList' item.key %}">
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.count }} 条新闻</span>
+        </a>
+    {% endfor %}
+</section>
+
+<section class="content-panel">
+    <div class="section-head">
+        <h2>最新新闻</h2>
+    </div>
+    <div class="news-list">
+        {% for mynew in latest_news %}
+            <div class="news-row">
+                <a href="{% url 'app:newsDetail' mynew.id %}">{{ mynew.title }}</a>
+                <span>{{ mynew.published_at|date:"Y-m-d" }}</span>
+            </div>
+        {% empty %}
+            <p class="empty">暂无新闻。</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

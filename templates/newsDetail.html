@@ -1,0 +1,17 @@
+{% extends 'based.html' %}
+
+{% block title %}{{ mynew.title }}{% endblock %}
+
+{% block content %}
+<article class="content-panel detail-panel">
+    <h1>{{ mynew.title }}</h1>
+    <div class="meta">
+        <span>{{ mynew.get_news_type_display }}</span>
+        <span>{{ mynew.published_at|date:"Y-m-d H:i" }}</span>
+        <span>浏览量：{{ mynew.views }}</span>
+    </div>
+    <div class="article-body">
+        {{ mynew.content|safe }}
+    </div>
+</article>
+{% endblock %}

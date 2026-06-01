@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}新闻中心{% endblock %}</title>
+    <link href="/media/css/news.css" rel="stylesheet">
+</head>
+<body>
+<header class="site-header">
+    <nav class="site-nav">
+        <a class="brand" href="{% url 'app:home' %}">XX 企业系统</a>
+        <div class="nav-links">
+            <a class="{% if active_menu == 'home' %}active{% endif %}" href="{% url 'app:home' %}">首页</a>
+            <a class="{% if active_menu == 'news' %}active{% endif %}" href="{% url 'app:newsList' 'company' %}">新闻中心</a>
+            {% if request.session.member_id %}
+                <form method="post" action="{% url 'app:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">退出登录</button>
+                </form>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

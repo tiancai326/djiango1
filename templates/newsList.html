@@ -1,0 +1,33 @@
+{% extends 'based.html' %}
+
+{% block title %}{{ newName }}{% endblock %}
+
+{% block content %}
+<section class="page-title">
+    <p>新闻分类</p>
+    <h1>{{ newName }}</h1>
+    <form class="search-form" method="get" action="{% url 'app:search' %}">
+        <input type="text" name="keyword" placeholder="请输入关键词" required>
+        <button type="submit">查询</button>
+    </form>
+</section>
+
+<div class="type-tabs">
+    {% for key, name in news_types %}
+        <a class="{% if current_type == key %}active{% endif %}" href="{% url 'app:newsList' key %}">{{ name }}</a>
+    {% endfor %}
+</div>
+
+<section class="content-panel">
+    <div class="news-list">
+        {% for mynew in newList %}
+            <div class="news-row">
+                <a href="{% url 'app:newsDetail' mynew.id %}">{{ mynew.title }}</a>
+                <span>{{ mynew.published_at|date:"Y-m-d" }}</span>
+            </div>
+        {% empty %}
+            <p class="empty">暂无新闻。</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
