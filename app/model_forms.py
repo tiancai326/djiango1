@@ -12,6 +12,7 @@ class LoginForm(forms.Form):
             attrs={
                 "class": "form-control",
                 "placeholder": "请输入账号",
+                "autocomplete": "username",
             }
         ),
     )
@@ -21,6 +22,7 @@ class LoginForm(forms.Form):
             attrs={
                 "class": "form-control",
                 "placeholder": "请输入密码",
+                "autocomplete": "current-password",
             }
         ),
     )
@@ -34,6 +36,7 @@ class SignonForm(forms.ModelForm):
             attrs={
                 "class": "form-control",
                 "placeholder": "请输入密码",
+                "autocomplete": "new-password",
             }
         ),
     )
@@ -43,6 +46,7 @@ class SignonForm(forms.ModelForm):
             attrs={
                 "class": "form-control",
                 "placeholder": "请再次输入密码",
+                "autocomplete": "new-password",
             }
         ),
     )
@@ -53,6 +57,7 @@ class SignonForm(forms.ModelForm):
             attrs={
                 "class": "form-control",
                 "placeholder": "请输入邮箱",
+                "autocomplete": "email",
             }
         ),
     )
@@ -69,6 +74,7 @@ class SignonForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "placeholder": "请输入姓名",
+                    "autocomplete": "username",
                 }
             ),
         }
@@ -128,5 +134,7 @@ class ResumeForm(forms.ModelForm):
         widgets = {
             "sex": forms.Select(choices=SEX_LIST),
             "edu": forms.Select(choices=EDU_LIST),
+            "birth": forms.DateInput(attrs={"type": "date"}),
+            "experience": forms.Textarea(attrs={"rows": 5}),
             "photo": forms.FileInput(),
         }

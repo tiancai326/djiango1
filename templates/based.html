@@ -1,34 +1,72 @@
-<!doctype html>
+{% load static %}
+<!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
+    <title>{% block title %}恒达科技企业平台{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}新闻中心{% endblock %}</title>
-    <link href="/media/css/news.css" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f32853'/%3E%3Cpath d='M8 9h14v4H13v3h8v4h-8v3h10v4H8z' fill='white'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="{% static 'spatial/assets/css/main.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'spatial/css/site.css' %}?v=5">
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
-<header class="site-header">
-    <nav class="site-nav">
-        <a class="brand" href="{% url 'app:home' %}">XX 企业系统</a>
-        <div class="nav-links">
-            <a class="{% if active_menu == 'home' %}active{% endif %}" href="{% url 'app:home' %}">首页</a>
-            <a class="{% if active_menu == 'news' %}active{% endif %}" href="{% url 'app:newsList' 'company' %}">新闻中心</a>
-            <a class="{% if active_menu == 'contactus' %}active{% endif %}" href="{% url 'app:contact' %}">地图</a>
-            <a class="{% if active_menu == 'service' %}active{% endif %}" href="{% url 'app:platform' %}">人脸检测</a>
-            {% if request.session.member_id %}
-                <form method="post" action="{% url 'app:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">退出登录</button>
-                </form>
-            {% endif %}
+<body class="{% block body_class %}{% endblock %}">
+    <header id="header" class="{% block header_class %}{% endblock %}">
+        <h1><strong><a href="{% url 'app:home' %}">恒达科技</a></strong> 企业服务平台</h1>
+        <nav id="nav">
+            <ul>
+                <li><a class="{% if active_menu == 'home' %}active{% endif %}" href="{% url 'app:home' %}">首页</a></li>
+                <li><a class="{% if active_menu == 'products' %}active{% endif %}" href="{% url 'app:products' 'robot' %}">产品中心</a></li>
+                <li><a class="{% if active_menu == 'news' %}active{% endif %}" href="{% url 'app:newsList' 'company' %}">新闻中心</a></li>
+                <li><a class="{% if active_menu == 'contactus' %}active{% endif %}" href="{% url 'app:contact' %}">人才招聘</a></li>
+                <li><a class="{% if active_menu == 'service' %}active{% endif %}" href="{% url 'app:platform' %}">人脸检测</a></li>
+                {% if request.session.member_id %}
+                    <li>
+                        <form class="nav-logout" method="post" action="{% url 'app:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit">退出</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'app:login' %}">登录</a></li>
+                    <li><a href="{% url 'app:signon' %}">注册</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% block full_content %}
+        <section id="main" class="wrapper page-wrapper">
+            <div class="container">
+                <header class="major special page-heading">
+                    <h2>{% block page_heading %}{% endblock %}</h2>
+                    <p>{% block page_subtitle %}{% endblock %}</p>
+                </header>
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+    {% endblock %}
+
+    <footer id="footer">
+        <div class="container">
+            <ul class="footer-links">
+                <li><a href="{% url 'app:home' %}">首页</a></li>
+                <li><a href="{% url 'app:products' 'robot' %}">产品中心</a></li>
+                <li><a href="{% url 'app:newsList' 'company' %}">新闻中心</a></li>
+                <li><a href="{% url 'app:recruit' %}">加入恒达</a></li>
+                <li><a href="{% url 'app:platform' %}">人脸检测</a></li>
+            </ul>
+            <ul class="copyright">
+                <li>&copy; 恒达科技有限公司</li>
+                <li>Spatial 套版整合</li>
+            </ul>
         </div>
-    </nav>
-</header>
+    </footer>
 
-<main class="container">
-    {% block content %}{% endblock %}
-</main>
-
-{% block script_end %}{% endblock %}
+    <script src="{% static 'spatial/assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'spatial/assets/js/skel.min.js' %}"></script>
+    <script src="{% static 'spatial/assets/js/util.js' %}"></script>
+    <script src="{% static 'spatial/assets/js/main.js' %}"></script>
+    {% block script_end %}{% endblock %}
 </body>
 </html>

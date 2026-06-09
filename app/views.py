@@ -1,13 +1,24 @@
 from functools import wraps
 
+from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
-from django.db.models import Q
+from django.core.mail import send_mail
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
+from haystack.query import SearchQuerySet
 
 from .face_detect import detect_faces, draw_faces, encode_image, read_image
 from .model_forms import LoginForm, ResumeForm, SignonForm
-from .models import Ad, Member, News
+from .models import Ad, Member, News, Product
+
+
+PRODUCT_CATEGORY_MAP = {
+    "robot": "家用机器人",
+    "monitor": "智能监控",
+    "face": "人脸识别解决方案",
+}
 
 
 def member_login_required(view_func):
@@ -81,22 +92,80 @@ def news_detail(request, news_id):
 
 @member_login_required
 def search(request):
-    keyword = request.GET.get("keyword", "").strip()
-    if keyword:
-        new_list = News.objects.filter(Q(title__icontains=keyword) | Q(content__icontains=keyword))
-        new_name = f'关于 "{keyword}" 的搜索结果'
+    query = request.GET.get("q") or request.GET.get("keyword", "")
+    query = query.strip()
+
+    results = SearchQuerySet().models(News).load_all()
+    if query:
+        results = results.auto_query(query).highlight()
     else:
-        new_list = News.objects.none()
-        new_name = "新闻搜索"
+        results = results.none()
+
+    paginator = Paginator(results, 10)
+    page_obj = paginator.get_page(request.GET.get("page"))
 
     return render(
         request,
-        "searchList.html",
+        "search/search.html",
         {
             "active_menu": "news",
-            "newName": new_name,
-            "newList": new_list,
-            "keyword": keyword,
+            "query": query,
+            "page_obj": page_obj,
+            "paginator": paginator,
+            "result_count": paginator.count,
+        },
+    )
+
+
+@member_login_required
+def products(request, product_name):
+    product_type = PRODUCT_CATEGORY_MAP.get(product_name)
+    if product_type is None:
+        return redirect("app:products", product_name="robot")
+
+    product_queryset = (
+        Product.objects.filter(productType=product_type)
+        .prefetch_related("productImgs")
+        .order_by("-publishDate")
+    )
+    paginator = Paginator(product_queryset, 2)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    return render(
+        request,
+        "productList.html",
+        {
+            "active_menu": "products",
+            "sub_menu": product_name,
+            "product_categories": tuple(PRODUCT_CATEGORY_MAP.items()),
+            "productName": product_type,
+            "productList": page_obj,
+            "page_obj": page_obj,
+        },
+    )
+
+
+@member_login_required
+def product_detail(request, product_id):
+    product = get_object_or_404(
+        Product.objects.prefetch_related("productImgs"),
+        id=product_id,
+    )
+    Product.objects.filter(id=product.id).update(views=product.views + 1)
+    product.views += 1
+    product_slug = next(
+        (slug for slug, name in PRODUCT_CATEGORY_MAP.items() if name == product.productType),
+        "robot",
+    )
+
+    return render(
+        request,
+        "productDetail.html",
+        {
+            "active_menu": "products",
+            "sub_menu": product_slug,
+            "product": product,
+            "product_slug": product_slug,
         },
     )
 
@@ -155,8 +224,15 @@ def recruit(request):
     if request.method == "POST":
         resume_form = ResumeForm(data=request.POST, files=request.FILES)
         if resume_form.is_valid():
-            resume_form.save()
-            msg = "<br><br>成功新增个人简历..."
+            resume = resume_form.save()
+            send_mail(
+                "简历提交成功",
+                "您好，您的简历已经提交成功，请等待审核。",
+                settings.DEFAULT_FROM_EMAIL,
+                [resume.email],
+                fail_silently=False,
+            )
+            msg = "<br><br>成功新增个人简历，确认邮件已发送..."
             return render(
                 request,
                 "OK.html",
@@ -192,6 +268,7 @@ def platform(request):
     )
 
 
+@csrf_exempt
 def facedetect(request):
     if request.method != "POST":
         return JsonResponse({"faceNum": 0, "faces": []})
@@ -204,6 +281,7 @@ def facedetect(request):
     return JsonResponse({"faceNum": len(faces), "faces": faces})
 
 
+@csrf_exempt
 def facedetect_demo(request):
     if request.method != "POST":
         return JsonResponse({"faceNum": 0, "faces": [], "image": ""})

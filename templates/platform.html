@@ -1,50 +1,49 @@
 {% extends 'based.html' %}
-{% load static %}
 
-{% block title %}人脸识别平台{% endblock %}
+{% block title %}人脸检测平台{% endblock %}
+{% block page_heading %}人脸检测平台{% endblock %}
+{% block page_subtitle %}上传图片并查看检测结果{% endblock %}
 
 {% block content %}
-<link href="{% static 'css/contact.css' %}" rel="stylesheet">
+    <div class="side-layout">
+        <aside class="side-nav">
+            <h3>服务平台</h3>
+            <ul>
+                <li><a class="{% if sub_menu == 'platform' %}active{% endif %}" href="{% url 'app:platform' %}">人脸检测</a></li>
+            </ul>
+        </aside>
 
-<div class="contact-hero">
-    <h1>人脸识别平台</h1>
-</div>
-
-<div class="contact-layout">
-    <aside class="contact-aside">
-        <h2>服务平台</h2>
-        <ul>
-            <li class="{% if sub_menu == 'platform' %}active{% endif %}">
-                <a href="{% url 'app:platform' %}">人脸识别平台</a>
-            </li>
-        </ul>
-    </aside>
-
-    <section class="contact-content">
-        <h2>人脸识别接口</h2>
-        <div class="recruit-layout">
-            <div class="recruit-form">
-                <h3>上传图片</h3>
-                <form id="faceForm" method="post" enctype="multipart/form-data">
+        <section class="recruit-grid">
+            <div class="content-card">
+                <header>
+                    <h3>上传图片</h3>
+                    <p>选择照片后执行检测</p>
+                </header>
+                <form id="faceForm" class="stack-form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-row">
                         <label for="faceImage">选择图片</label>
                         <input id="faceImage" type="file" name="image" accept="image/*">
                     </div>
-                    <div class="form-actions">
+                    <div class="form-actions split-actions">
                         <button type="button" id="detectBtn">检测人脸</button>
-                        <button type="button" id="detectDemoBtn">检测并绘制</button>
+                        <button type="button" id="detectDemoBtn" class="special">检测并绘制</button>
                     </div>
                 </form>
-                <div id="faceResult" class="ok-body"></div>
+                <div id="faceResult" class="result-box"></div>
             </div>
-            <div class="recruit-ads">
-                <h3>检测结果图</h3>
-                <img id="facePreview" style="max-width:100%;" alt="face preview">
+
+            <div class="content-card">
+                <header>
+                    <h3>检测结果图</h3>
+                    <p>绘制模式会返回标注后的图片</p>
+                </header>
+                <div class="preview-frame">
+                    <img id="facePreview" alt="人脸检测结果图">
+                </div>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
+    </div>
 {% endblock %}
 
 {% block script_end %}
@@ -55,13 +54,9 @@
     const faceResult = document.getElementById('faceResult');
     const facePreview = document.getElementById('facePreview');
 
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) {
-            return parts.pop().split(';').shift();
-        }
-        return '';
+    function getCsrfToken() {
+        const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return tokenInput ? tokenInput.value : '';
     }
 
     function buildFormData() {
@@ -82,46 +77,46 @@
         faceResult.textContent = '检测到人脸数量：' + data.faceNum;
     }
 
-    detectBtn.addEventListener('click', () => {
+    function requestDetection(url, shouldRenderPreview) {
         const formData = buildFormData();
         if (!formData) {
             faceResult.textContent = '请先选择图片。';
             return;
         }
-        fetch('{% url "app:facedetect" %}', {
+        faceResult.textContent = '正在检测，请稍候...';
+        fetch(url, {
             method: 'POST',
             body: formData,
+            credentials: 'same-origin',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
+                'X-CSRFToken': getCsrfToken(),
             },
         })
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('接口请求失败，状态码：' + response.status);
+                }
+                return response.json();
+            })
             .then((data) => {
                 renderResult(data);
-                facePreview.removeAttribute('src');
+                if (shouldRenderPreview && data.image) {
+                    facePreview.src = 'data:image/jpeg;base64,' + data.image;
+                } else {
+                    facePreview.removeAttribute('src');
+                }
+            })
+            .catch((error) => {
+                faceResult.textContent = error.message + '。请刷新页面后重试。';
             });
+    }
+
+    detectBtn.addEventListener('click', () => {
+        requestDetection('{% url "app:facedetect" %}', false);
     });
 
     detectDemoBtn.addEventListener('click', () => {
-        const formData = buildFormData();
-        if (!formData) {
-            faceResult.textContent = '请先选择图片。';
-            return;
-        }
-        fetch('{% url "app:facedetectDemo" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                renderResult(data);
-                if (data.image) {
-                    facePreview.src = 'data:image/jpeg;base64,' + data.image;
-                }
-            });
+        requestDetection('{% url "app:facedetectDemo" %}', true);
     });
 </script>
 {% endblock %}

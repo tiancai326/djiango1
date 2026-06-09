@@ -1,0 +1,51 @@
+{% extends 'based.html' %}
+
+{% block title %}{{ product.title }} - 产品详情{% endblock %}
+{% block page_heading %}产品详情{% endblock %}
+{% block page_subtitle %}{{ product.productType }}{% endblock %}
+
+{% block content %}
+    <article class="content-card product-detail">
+        <header>
+            <h1>{{ product.title }}</h1>
+            <div class="article-meta">
+                <span>{{ product.productType }}</span>
+                <time>{{ product.publishDate|date:"Y-m-d H:i" }}</time>
+                <span>浏览量：{{ product.views }}</span>
+            </div>
+        </header>
+
+        <div class="product-gallery">
+            {% for img in product.productImgs.all %}
+                {% if img.photo %}
+                    <img src="{{ img.photo.url }}" alt="{{ product.title }}">
+                {% endif %}
+            {% empty %}
+                <div class="product-placeholder large">暂无图片</div>
+            {% endfor %}
+        </div>
+
+        <section class="product-detail-section">
+            <h3>产品介绍</h3>
+            <div class="article-body">
+                {{ product.description|linebreaks }}
+            </div>
+        </section>
+
+        <section class="product-detail-section">
+            <h3>参考价格</h3>
+            <p>
+                {% if product.price %}
+                    {{ product.price }} 元
+                {% else %}
+                    面议
+                {% endif %}
+            </p>
+        </section>
+
+        <div class="split-actions">
+            <a href="{% url 'app:products' product_slug %}" class="button">返回列表</a>
+            <a href="{% url 'app:contact' %}" class="button special">联系我们</a>
+        </div>
+    </article>
+{% endblock %}

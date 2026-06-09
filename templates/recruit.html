@@ -1,44 +1,44 @@
 {% extends 'based.html' %}
-{% load static %}
 
-{% block title %}加入恒达{% endblock %}
+{% block title %}加入恒达 - 人才招聘{% endblock %}
+{% block page_heading %}加入恒达{% endblock %}
+{% block page_subtitle %}招聘岗位与简历提交{% endblock %}
 
 {% block content %}
-<link href="{% static 'css/contact.css' %}" rel="stylesheet">
+    <div class="side-layout">
+        <aside class="side-nav">
+            <h3>人才招聘</h3>
+            <ul>
+                <li><a class="{% if sub_menu == 'contact' %}active{% endif %}" href="{% url 'app:contact' %}">欢迎咨询</a></li>
+                <li><a class="{% if sub_menu == 'recruit' %}active{% endif %}" href="{% url 'app:recruit' %}">加入恒达</a></li>
+            </ul>
+        </aside>
 
-<div class="contact-hero">
-    <h1>人才招聘</h1>
-</div>
-
-<div class="contact-layout">
-    <aside class="contact-aside">
-        <h2>人才招聘</h2>
-        <ul>
-            <li class="{% if sub_menu == 'contact' %}active{% endif %}">
-                <a href="{% url 'app:contact' %}">欢迎咨询</a>
-            </li>
-            <li class="{% if sub_menu == 'recruit' %}active{% endif %}">
-                <a href="{% url 'app:recruit' %}">加入恒达</a>
-            </li>
-        </ul>
-    </aside>
-
-    <section class="contact-content">
-        <h2>加入恒达</h2>
-        <div class="recruit-layout">
-            <div class="recruit-ads">
-                {% for ad in AdList %}
-                    <article class="ad-card">
-                        <h3>{{ ad.title }}</h3>
-                        <p>{{ ad.description }}</p>
-                    </article>
-                {% empty %}
-                    <p class="muted">暂无招聘信息。</p>
-                {% endfor %}
+        <section class="recruit-grid">
+            <div class="content-card">
+                <header>
+                    <h3>招聘岗位</h3>
+                    <p>当前开放职位</p>
+                </header>
+                <div class="ad-list">
+                    {% for ad in AdList %}
+                        <article class="ad-card">
+                            <h4>{{ ad.title }}</h4>
+                            <time>{{ ad.publishDate|date:"Y-m-d" }}</time>
+                            <p>{{ ad.description }}</p>
+                        </article>
+                    {% empty %}
+                        <p class="empty">暂无招聘信息。</p>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="recruit-form">
-                <h3>提交简历</h3>
-                <form method="post" enctype="multipart/form-data">
+
+            <div class="content-card">
+                <header>
+                    <h3>提交简历</h3>
+                    <p>请完整填写申请信息</p>
+                </header>
+                <form class="stack-form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.non_field_errors }}
                     <div class="form-row">
@@ -46,10 +46,17 @@
                         {{ form.name }}
                         {{ form.name.errors }}
                     </div>
-                    <div class="form-row">
-                        <label for="{{ form.sex.id_for_label }}">性别</label>
-                        {{ form.sex }}
-                        {{ form.sex.errors }}
+                    <div class="form-row two-column">
+                        <div>
+                            <label for="{{ form.sex.id_for_label }}">性别</label>
+                            {{ form.sex }}
+                            {{ form.sex.errors }}
+                        </div>
+                        <div>
+                            <label for="{{ form.edu.id_for_label }}">学历</label>
+                            {{ form.edu }}
+                            {{ form.edu.errors }}
+                        </div>
                     </div>
                     <div class="form-row">
                         <label for="{{ form.personID.id_for_label }}">身份证号</label>
@@ -66,20 +73,17 @@
                         {{ form.birth }}
                         {{ form.birth.errors }}
                     </div>
-                    <div class="form-row">
-                        <label for="{{ form.edu.id_for_label }}">学历</label>
-                        {{ form.edu }}
-                        {{ form.edu.errors }}
-                    </div>
-                    <div class="form-row">
-                        <label for="{{ form.school.id_for_label }}">毕业院校</label>
-                        {{ form.school }}
-                        {{ form.school.errors }}
-                    </div>
-                    <div class="form-row">
-                        <label for="{{ form.major.id_for_label }}">专业</label>
-                        {{ form.major }}
-                        {{ form.major.errors }}
+                    <div class="form-row two-column">
+                        <div>
+                            <label for="{{ form.school.id_for_label }}">毕业院校</label>
+                            {{ form.school }}
+                            {{ form.school.errors }}
+                        </div>
+                        <div>
+                            <label for="{{ form.major.id_for_label }}">专业</label>
+                            {{ form.major }}
+                            {{ form.major.errors }}
+                        </div>
                     </div>
                     <div class="form-row">
                         <label for="{{ form.position.id_for_label }}">申请职位</label>
@@ -97,11 +101,10 @@
                         {{ form.photo.errors }}
                     </div>
                     <div class="form-actions">
-                        <button type="submit">提交</button>
+                        <button type="submit" class="special">提交</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
+    </div>
 {% endblock %}

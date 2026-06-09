@@ -1,0 +1,82 @@
+{% extends 'based.html' %}
+
+{% block title %}{{ productName }} - 产品中心{% endblock %}
+{% block page_heading %}产品中心{% endblock %}
+{% block page_subtitle %}{{ productName }}{% endblock %}
+
+{% block content %}
+    <div class="side-layout">
+        <aside class="side-nav">
+            <h3>产品分类</h3>
+            <ul>
+                {% for key, name in product_categories %}
+                    <li>
+                        <a class="{% if sub_menu == key %}active{% endif %}" href="{% url 'app:products' key %}">{{ name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <section class="content-card">
+            <header>
+                <h3>{{ productName }}</h3>
+                <p>共 {{ page_obj.paginator.count }} 个产品</p>
+            </header>
+
+            <div class="product-list">
+                {% for product in productList %}
+                    <article class="product-item">
+                        <div class="product-thumb">
+                            {% for img in product.productImgs.all %}
+                                {% if forloop.first and img.photo %}
+                                    <a href="{% url 'app:productDetail' product.id %}">
+                                        <img src="{{ img.photo.url }}" alt="{{ product.title }}">
+                                    </a>
+                                {% endif %}
+                            {% empty %}
+                                <a class="product-placeholder" href="{% url 'app:productDetail' product.id %}">暂无图片</a>
+                            {% endfor %}
+                        </div>
+                        <div class="product-summary">
+                            <h3>{{ product.title|truncatechars:20 }}</h3>
+                            <p>{{ product.description|truncatechars:150|linebreaksbr }}</p>
+                            <div class="product-meta">
+                                <span>浏览量：{{ product.views }}</span>
+                                {% if product.price %}
+                                    <span>参考价格：{{ product.price }} 元</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'app:productDetail' product.id %}" class="button special small">查看详情</a>
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="empty">暂无产品。可以先在后台添加产品文字和图片。</p>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+                <nav class="pagination" aria-label="产品分页">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">首页</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">上一页</a>
+                    {% endif %}
+
+                    {% for page_number in page_obj.paginator.page_range %}
+                        {% if page_number == page_obj.number %}
+                            <span class="active">{{ page_number }}</span>
+                        {% else %}
+                            <a href="?page={{ page_number }}">{{ page_number }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    <span class="current">页次 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">下一页</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">末页</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

@@ -1,17 +1,19 @@
 {% extends 'based.html' %}
 
-{% block title %}{{ mynew.title }}{% endblock %}
+{% block title %}{{ mynew.title }} - 新闻中心{% endblock %}
+{% block page_heading %}新闻详情{% endblock %}
+{% block page_subtitle %}{{ mynew.get_news_type_display }}{% endblock %}
 
 {% block content %}
-<article class="content-panel detail-panel">
-    <h1>{{ mynew.title }}</h1>
-    <div class="meta">
-        <span>{{ mynew.get_news_type_display }}</span>
-        <span>{{ mynew.published_at|date:"Y-m-d H:i" }}</span>
-        <span>浏览量：{{ mynew.views }}</span>
-    </div>
-    <div class="article-body">
-        {{ mynew.content|safe }}
-    </div>
-</article>
+    <article class="content-card article-card">
+        <h1>{{ mynew.title }}</h1>
+        <div class="article-meta">
+            <span>{{ mynew.get_news_type_display }}</span>
+            <time>{{ mynew.published_at|date:"Y-m-d H:i" }}</time>
+            <span>浏览量：{{ mynew.views }}</span>
+        </div>
+        <div class="article-body">
+            {{ mynew.content|safe }}
+        </div>
+    </article>
 {% endblock %}

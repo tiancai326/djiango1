@@ -1,39 +1,90 @@
 {% extends 'based.html' %}
+{% load static %}
 
-{% block title %}首页{% endblock %}
+{% block title %}首页 - 恒达科技{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block header_class %}alt{% endblock %}
 
-{% block content %}
-<section class="page-title">
-    <p>当前用户：{{ member.username }}</p>
-    <h1>新闻中心</h1>
-    <form class="search-form" method="get" action="{% url 'app:search' %}">
-        <input type="text" name="keyword" placeholder="请输入关键词" required>
-        <button type="submit">查询</button>
-    </form>
-</section>
+{% block full_content %}
+    <section id="banner" class="home-banner">
+        <h2>恒达科技</h2>
+        <p>欢迎回来，{{ member.username }}。</p>
+        <ul class="actions">
+            <li><a href="{% url 'app:newsList' 'company' %}" class="button special big">浏览新闻</a></li>
+            <li><a href="{% url 'app:platform' %}" class="button big">人脸检测</a></li>
+        </ul>
+    </section>
 
-<section class="type-grid">
-    {% for item in news_types %}
-        <a class="type-card" href="{% url 'app:newsList' item.key %}">
-            <strong>{{ item.name }}</strong>
-            <span>{{ item.count }} 条新闻</span>
-        </a>
-    {% endfor %}
-</section>
-
-<section class="content-panel">
-    <div class="section-head">
-        <h2>最新新闻</h2>
-    </div>
-    <div class="news-list">
-        {% for mynew in latest_news %}
-            <div class="news-row">
-                <a href="{% url 'app:newsDetail' mynew.id %}">{{ mynew.title }}</a>
-                <span>{{ mynew.published_at|date:"Y-m-d" }}</span>
+    <section class="wrapper style1">
+        <div class="container 75%">
+            <div class="row 200%">
+                <div class="6u 12u$(medium)">
+                    <header class="major">
+                        <h2>企业信息中心</h2>
+                        <p>新闻、招聘、地图与智能检测统一入口</p>
+                    </header>
+                </div>
+                <div class="6u$ 12u$(medium)">
+                    <form class="search-bar" method="get" action="{% url 'app:search' %}">
+                        <input type="text" name="q" placeholder="输入关键词全文搜索新闻" required>
+                        <button type="submit" class="special">查询</button>
+                    </form>
+                    <p class="intro-text">这里保留原系统的全部功能，并使用新的 Spatial 套版统一展示。</p>
+                </div>
             </div>
-        {% empty %}
-            <p class="empty">暂无新闻。</p>
-        {% endfor %}
-    </div>
-</section>
+        </div>
+    </section>
+
+    <section class="wrapper style2 special">
+        <div class="container">
+            <header class="major">
+                <h2>新闻分类</h2>
+                <p>按类型快速查看最新内容</p>
+            </header>
+            <div class="dashboard-grid">
+                {% for item in news_types %}
+                    <a class="metric-card" href="{% url 'app:newsList' item.key %}">
+                        <span>{{ item.name }}</span>
+                        <strong>{{ item.count }}</strong>
+                        <em>条新闻</em>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="wrapper style1">
+        <div class="container">
+            <div class="row 150%">
+                <div class="6u 12u$(medium)">
+                    <section class="content-card">
+                        <header>
+                            <h3>最新新闻</h3>
+                            <p>最近发布的企业动态</p>
+                        </header>
+                        <div class="news-list">
+                            {% for mynew in latest_news %}
+                                <article class="news-item">
+                                    <a href="{% url 'app:newsDetail' mynew.id %}">{{ mynew.title }}</a>
+                                    <time>{{ mynew.published_at|date:"Y-m-d" }}</time>
+                                </article>
+                            {% empty %}
+                                <p class="empty">暂无新闻。</p>
+                            {% endfor %}
+                        </div>
+                    </section>
+                </div>
+                <div class="6u$ 12u$(medium)">
+                    <div class="image fit captioned feature-photo">
+                        <img src="{% static 'spatial/images/pic02.jpg' %}" alt="企业办公场景">
+                        <h3>业务入口</h3>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="{% url 'app:contact' %}" class="button">联系我们</a>
+                        <a href="{% url 'app:recruit' %}" class="button">提交简历</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}

@@ -1,11 +1,12 @@
 {% extends 'based.html' %}
 
-{% block title %}提交成功{% endblock %}
+{% block title %}提交成功 - 恒达科技{% endblock %}
+{% block page_heading %}提交成功{% endblock %}
+{% block page_subtitle %}简历信息已提交{% endblock %}
 
 {% block content %}
-<div class="ok-message">
-    <h1>提交成功</h1>
-    <div class="ok-body">{{ msg|safe }}</div>
-    <p><a href="{% url 'app:recruit' %}">返回招聘页面</a></p>
-</div>
+    <section class="auth-card center">
+        <div class="result-box">{{ msg|safe }}</div>
+        <a href="{% url 'app:recruit' %}" class="button special">返回招聘页面</a>
+    </section>
 {% endblock %}

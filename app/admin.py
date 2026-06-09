@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Ad, Member, News, Resume
+from .models import Ad, Member, News, Product, ProductImg, Resume
 
 
 @admin.register(Member)
@@ -17,6 +17,20 @@ class NewsAdmin(admin.ModelAdmin):
     list_filter = ("news_type", "published_at")
     search_fields = ("title", "content")
     date_hierarchy = "published_at"
+
+
+class ProductImgInline(admin.StackedInline):
+    model = ProductImg
+    extra = 1
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    inlines = [ProductImgInline]
+    list_display = ("id", "title", "productType", "price", "publishDate", "views")
+    list_filter = ("productType", "publishDate")
+    search_fields = ("title", "description")
+    date_hierarchy = "publishDate"
 
 
 class ResumeAdmin(admin.ModelAdmin):
