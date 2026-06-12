@@ -45,8 +45,8 @@ class News(models.Model):
 class Product(models.Model):
     PRODUCTS_CHOICES = (
         ("家用机器人", "家用机器人"),
-        ("智能监控", "智能监控"),
-        ("人脸识别解决方案", "人脸识别解决方案"),
+        ("智能监控机器人", "智能监控机器人"),
+        ("工业机器人", "工业机器人"),
     )
 
     title = models.CharField(max_length=50, verbose_name="产品标题")

@@ -16,8 +16,8 @@ from .models import Ad, Member, News, Product
 
 PRODUCT_CATEGORY_MAP = {
     "robot": "家用机器人",
-    "monitor": "智能监控",
-    "face": "人脸识别解决方案",
+    "monitor": "智能监控机器人",
+    "face": "工业机器人",
 }
 
 
